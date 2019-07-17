@@ -78,8 +78,6 @@ class AreaChainedSelect(widgets.Select):
             }
 
         output = super(AreaChainedSelect, self).render(name, value, attrs, renderer)
-        output += js
-        return mark_safe(output)
 
 
 class ChainedAreaField(ModelChoiceField):
