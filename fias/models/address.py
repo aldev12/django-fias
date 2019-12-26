@@ -51,7 +51,9 @@ class FIASAddress(models.Model):
         if self.pk:
             old_obj = self._meta.concrete_model.objects.get(pk=self.pk)
 
-            if not hasattr(old_obj, 'address') or self.address != old_obj.address:
+            if self.address_id is None:
+                self.full_address = self.short_address = ''
+            elif self.address_id != old_obj.address_id:
                 self._update_address()
         else:
             self._update_address()
