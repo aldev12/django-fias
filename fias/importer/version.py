@@ -4,6 +4,7 @@ from __future__ import unicode_literals, absolute_import
 import datetime
 
 from django.core.exceptions import ImproperlyConfigured
+from requests.exceptions import HTTPError
 
 from fias.config import PROXY
 from fias.importer.signals import pre_fetch_version, post_fetch_version
@@ -72,28 +73,30 @@ def iter_version_info(result):
         for item in result:
             yield item
 
-
 try:
-    from zeep.client import Client
-    from zeep import __version__ as zver
-    z_major, z_minor, z_sub = list(map(int, zver.split('.')))
-
-    if z_minor < 20:
-        parse_func = parse_item_as_object
-    elif z_minor > 20:
-        parse_func = parse_item_as_dict
-
-    client = Client(wsdl=wsdl_source)
-except ImportError:
     try:
-        from suds.client import Client
+        from zeep.client import Client
+        from zeep import __version__ as zver
+        z_major, z_minor, z_sub = list(map(int, zver.split('.')))
 
-        parse_func = parse_item_as_dict
-        client = Client(url=wsdl_source, proxy=PROXY or None)
+        if z_minor < 20:
+            parse_func = parse_item_as_object
+        elif z_minor > 20:
+            parse_func = parse_item_as_dict
 
+        client = Client(wsdl=wsdl_source)
     except ImportError:
-        raise ImproperlyConfigured('Не найдено подходящей библиотеки для работы с WSDL.'
-                                   ' Пожалуйста установите zeep или suds!')
+        try:
+            from suds.client import Client
+
+            parse_func = parse_item_as_dict
+            client = Client(url=wsdl_source, proxy=PROXY or None)
+
+        except ImportError:
+            raise ImproperlyConfigured('Не найдено подходящей библиотеки для работы с WSDL.'
+                                       ' Пожалуйста установите zeep или suds!')
+except HTTPError:
+    print('Сайт не отвечает при запросе WSDL')
 
 
 def fetch_version_info(update_all=False):
