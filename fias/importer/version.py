@@ -2,16 +2,19 @@
 from __future__ import unicode_literals, absolute_import
 
 import datetime
+import json
+import urllib.request
 
 from django.core.exceptions import ImproperlyConfigured
 from requests.exceptions import HTTPError
+from zeep.exceptions import XMLSyntaxError
 
 from fias.config import PROXY
 from fias.importer.signals import pre_fetch_version, post_fetch_version
 from fias.models import Version
 
 wsdl_source = "http://fias.nalog.ru/WebServices/Public/DownloadService.asmx?WSDL"
-
+json_source = "http://fias.nalog.ru/WebServices/Public/GetAllDownloadFileInfo"
 
 def parse_item_as_dict(item, update_all=False):
     """
@@ -103,7 +106,12 @@ def fetch_version_info(update_all=False):
 
     pre_fetch_version.send(object.__class__)
 
-    result = client.service.GetAllDownloadFileInfo()
+    try:
+        result = client.service.GetAllDownloadFileInfo()
+    except XMLSyntaxError:
+        with urllib.request.urlopen(json_source) as url:
+            result = json.loads(url.read().decode())
+            parse_func = parse_item_as_dict
     for item in iter_version_info(result=result):
         parse_func(item=item, update_all=update_all)
 
