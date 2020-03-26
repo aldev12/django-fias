@@ -1,6 +1,8 @@
 # coding: utf-8
 from __future__ import unicode_literals, absolute_import
 
+import zipfile
+
 from django.conf import settings
 
 import rarfile
@@ -42,13 +44,16 @@ class LocalArchiveTableList(TableList):
     def load_data(self, source):
         try:
             archive = rarfile.RarFile(source)
-        except (rarfile.NotRarFile, rarfile.BadRarFile) as e:
-            raise BadArchiveError('Archive: `{0}`, ver: `{1}` corrupted'
-                                  ' or is not rar-archive'.format(source))
+        # except (rarfile.NotRarFile, rarfile.BadRarFile) as e:
+        except Exception as e1:
+            try:
+                archive = zipfile.ZipFile(source)
+            except Exception as e2:
+                raise BadArchiveError('Archive: `{}` corrupted or is not rar,zip-archive; {}; {}'.format(
+                    source, e1, e2))
 
         if not archive.namelist():
-            raise BadArchiveError('Archive: `{0}`, ver: `{1}` is empty'
-                                  ''.format(source))
+            raise BadArchiveError('Archive: `{}`, is empty'.format(source))
 
         first_name = archive.namelist()[0]
         if table_dbf_re.match(first_name) or table_dbt_re.match(first_name):
