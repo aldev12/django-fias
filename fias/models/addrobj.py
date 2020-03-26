@@ -63,7 +63,8 @@ class AddrObj(June2016Update):
     operstatus = models.ForeignKey(OperStat, verbose_name='Статус действия над записью – причина появления записи',
                                    default=0, on_delete=models.CASCADE)
     currstatus = models.ForeignKey(CurentSt, verbose_name='Статус актуальности КЛАДР 4',
-                                   help_text='последние две цифры в коде', default=0, on_delete=models.CASCADE)
+                                   help_text='последние две цифры в коде', default=0, on_delete=models.CASCADE,
+                                   blank=True, null=True)
 
     livestatus = models.BooleanField('Признак действующего адресного объекта', default=False)
 
