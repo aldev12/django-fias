@@ -94,6 +94,6 @@ class AddrObj(June2016Update):
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
-        if self.currstatus_id is None:
+        if self.currstatus_id is None or self.currstatus_id == '':
             self.currstatus_id = 0
         super(AddrObj, self).save(force_insert, force_update, using, update_fields)
