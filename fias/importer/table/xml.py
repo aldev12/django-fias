@@ -31,6 +31,11 @@ class XMLIterator(TableIterator):
             if isinstance(f, models.DateField)
         })
 
+        self.int_fields = dict({
+            (f.name, f) for f in self.model._meta.get_fields()
+            if isinstance(f, models.IntegerField)
+        })
+
         self._context = etree.iterparse(self._fd)
 
     def format_row(self, row):
@@ -39,15 +44,22 @@ class XMLIterator(TableIterator):
             if key in self.uuid_fields:
                 yield (key, value or None)
             elif key in self.date_fields:
-                yield (key, datetime.datetime.strptime(value, "%Y-%m-%d").date())
-            #elif key in self.related_fields:
-            #    model = self.related_fields[key]
-            #    try:
-            #        model.objects.get(pk=value)
-            #    except model.DoesNotExist:
-            #        raise ParentLookupException('{0} with key `{1}` not found. Skipping house...'.format(model.__name__, value))
+                if value == '' or value is None:
+                    yield (key, None)
+                else:
+                    try:
+                        _date = datetime.datetime.strptime(value, "%Y-%m-%d").date()
+                    except ValueError:
+                        _date = datetime.datetime.strptime(value, "%d.%m.%y %H:%M:%S").date()
+                    yield (key, _date)
             elif key in self.related_fields:
+                if value == '':
+                    value = None
                 yield ('{0}_id'.format(key), value)
+            elif key in self.int_fields:
+                if value == '':
+                    value = None
+                yield (key, value)
             else:
                 yield (key, value)
 

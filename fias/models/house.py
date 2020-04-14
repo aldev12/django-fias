@@ -27,8 +27,8 @@ class House(June2016Update):
 
     housenum = models.CharField('Номер дома', max_length=20, blank=True, null=True)
     eststatus = models.ForeignKey(EstStat, verbose_name='Признак владения', default=0, on_delete=models.CASCADE)
-    buildnum = models.CharField('Номер корпуса', max_length=10, blank=True, null=True)
-    strucnum = models.CharField('Номер строения', max_length=10, blank=True, null=True)
+    buildnum = models.CharField('Номер корпуса', max_length=20, blank=True, null=True)
+    strucnum = models.CharField('Номер строения', max_length=20, blank=True, null=True)
     strstatus = models.ForeignKey(StrStat, verbose_name='Признак строения', default=0, on_delete=models.CASCADE)
 
     statstatus = models.PositiveSmallIntegerField('Состояние дома')
@@ -36,6 +36,12 @@ class House(June2016Update):
     regioncode = models.CharField('Код региона', max_length=2, blank=True, null=True)
 
     counter = models.IntegerField('Счетчик записей домов для КЛАДР 4')
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        if self.eststatus_id is None or self.eststatus_id == '':
+            self.eststatus_id = 0
+        super(House, self).save(force_insert, force_update, using, update_fields)
 
 
 class HouseInt(Common):

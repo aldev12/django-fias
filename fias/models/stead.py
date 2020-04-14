@@ -29,7 +29,7 @@ class Stead(June2016Update):
     previd = UUIDField('Идентификатор записи связывания с предыдушей исторической записью', blank=True, null=True)
     nextid = UUIDField('Идентификатор записи  связывания с последующей исторической записью', blank=True, null=True)
 
-    number = models.CharField('Номер земельного участка', max_length=120, blank=True, null=True)
+    number = models.CharField('Номер земельного участка', max_length=250, blank=True, null=True)
     regioncode = models.CharField('Код региона', max_length=2)
 
     operstatus = models.ForeignKey(OperStat, verbose_name='Статус действия над записью – причина появления записи',

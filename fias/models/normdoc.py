@@ -39,6 +39,6 @@ class NormDoc(models.Model):
     normdocid = UUIDField(primary_key=True, verbose_name='Идентификатор нормативного документа')
     docname = models.TextField('Наименование документа', blank=True, null=True)
     docdate = models.DateField('Дата документа', blank=True, null=True)
-    docnum = models.CharField('Номер документа', max_length=20, blank=True, null=True)
+    docnum = models.CharField('Номер документа', max_length=250, blank=True, null=True)
     doctype = models.ForeignKey(NDocType, verbose_name='Тип документа', default=0, on_delete=models.CASCADE)
-    docimgid = models.PositiveIntegerField('Идентификатор образа (внешний ключ)', blank=True, null=True)
+    docimgid = models.UUIDField('Идентификатор образа (внешний ключ)', blank=True, null=True)
